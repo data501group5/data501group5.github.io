@@ -150,7 +150,7 @@ function drawScene() {
 
 	if(showTemperature.state) {
 
-		let colors = generateColor("#0000FF", "#FF0000", 10);
+		let colors = generateColor("#FF0000", "#0000FF",10);
 
 		let temp = lerp(dataset.WTMP[t_int], dataset.WTMP[(t_int+1)%size], t_float);
 		let max_temp = Math.max(...dataset.WTMP);
