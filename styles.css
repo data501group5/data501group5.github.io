@@ -23,3 +23,11 @@ canvas {
 	display: flex;
 	flex-direction: column;
 }
+
+.inputCard {
+	padding: 10px;
+	background-color: rgb(50, 50, 45);
+	border-radius: 10px;
+	margin: 10px;
+	gap:5px;
+}

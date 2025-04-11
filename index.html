@@ -6,39 +6,45 @@
 	<title>Data 501 Capstone Dashboard</title>
 	<link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="body">
 	<div class="container">
-		<div class="titleDiv row" style="color:white">
-			<h1>Welcome to Our Dashboard</h1>
-			<h5>More stuff to come!</h5>
+		<div class="titleDiv row" style="justify-content: center;">
+			<div class="col">
+				<div class="row" style="justify-content: center;">
+					<h1>Data 501 Capstone - Group 5</h1>
+				</div>
+				<div class="row" style="justify-content: center;">
+					<h2>Visual Analysis of Boey Drift Dataset</h5>
+				</div>
+			</div>
 		</div>
 		<div class="bodyDiv row">
-			<div class="col">
+			<div class="col" style="padding:20px">
 				<!-- <img src="images/Travel Path (2).png"> -->
-				<canvas id="canvas" width=1000px height=800px></canvas>
+				<canvas id="canvas" width=1200px height=800px></canvas>
 			</div>
-			<div class="col">
-				<div class="row">
+			<div class="col" style="padding:20px">
+				<div class="row inputCard">
 					<input type="checkbox" id="position" checked>
 						<label>Position</label>
 					</input>
 				</div>
-				<div class="row">
+				<div class="row inputCard">
 					<input type="checkbox" id="direction" checked>
 						<label>Direction</label>
 					</input>
 				</div>
-				<div class="row">
+				<div class="row inputCard">
 					<input type="checkbox" id="wind">
 						<label>Wind</label>
 					</input>
 				</div>
-				<div class="row">
+				<div class="row inputCard">
 					<input type="checkbox" id="temperature">
 						<label>Temperature</label>
 					</input>
 				</div>
-				<div class="row">
+				<div class="row inputCard">
 					<input type="checkbox" id="pressure">
 						<label>Pressure</label>
 					</input>

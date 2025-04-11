@@ -1,8 +1,18 @@
+
+
 var t = 0;
 const backgroundColor = "rgb(50, 50, 45)";
 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
+
+function resizeCanvas() {
+	canvas.width = window.innerWidth * 3 / 4;
+	console.log("resiz");
+}
+
+window.onresize = resizeCanvas;
+resizeCanvas();
 
 var showPosition = {state:true};
 var showDirection = {state:true};
@@ -121,9 +131,16 @@ function main() {
 main();
 
 setInterval(function() {
-	t++;
 
-	if(t > dataset.index.length) {t = 0;}
+
+	do {
+		t++;
+		if(t > dataset.index.length) {t = 0;}
+	} while(dataset.WSPD[t] == 99);
+
+
+
+
 
 	drawScene();
 }, 100);
