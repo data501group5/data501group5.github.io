@@ -2609,8 +2609,9 @@ for(let row of data) {
 	}	
 }
 
-// dataset.DD = dataset.DD.map(parseInt);
 dataset.LAT = dataset.LAT.map(parseFloat);
 dataset.LON = dataset.LON.map(parseFloat);
+dataset.WDIR = dataset.WDIR.map(parseFloat);
+dataset.WSPD = dataset.WSPD.map(parseFloat);
 
 // console.log(dataset);
