@@ -1,12 +1,17 @@
 body {
 	background-color: rgb(30, 30, 25);
 	margin: 0px;
+	color: white;
+}
+
+canvas {
+	background-color: rgb(50, 50, 45);
 }
 
 .container {
-	margin: 30px;
-	width:100%;
-	height:100%;
+	padding: 60px;
+	width: 100%;
+	height: 100%;
 }
 
 .row {
