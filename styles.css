@@ -2,6 +2,7 @@ body {
 	background-color: rgb(30, 30, 25);
 	margin: 0px;
 	color: white;
+	padding: 20px 50px;
 }
 
 canvas {
@@ -9,7 +10,6 @@ canvas {
 }
 
 .container {
-	padding: 60px;
 	width: 100%;
 	height: 100%;
 }
@@ -35,4 +35,25 @@ canvas {
 .slider {
 	width: 100%;
 	padding: 20px;
+}
+
+.tempGradient {
+	background-image: linear-gradient(red, blue);
+	width: 50%;
+}
+
+.pressureGradient {
+	background-image: linear-gradient(blue, purple);
+	width: 50%;
+}
+
+.labels {
+	width: 50%;
+	gap: 30%;
+	justify-content: center;
+}
+
+.labels label {
+	justify-content: center;
+	text-align: center;
 }
