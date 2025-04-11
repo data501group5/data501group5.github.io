@@ -8,11 +8,15 @@ const context = canvas.getContext("2d");
 
 function resizeCanvas() {
 	canvas.width = window.innerWidth * 3 / 4;
-	console.log("resiz");
+	// console.log("resiz");
 }
 
 window.onresize = resizeCanvas;
 resizeCanvas();
+
+document.getElementById("slider").oninput = function() {
+	t = this.value;
+}
 
 var showPosition = {state:true};
 var showDirection = {state:true};
@@ -35,6 +39,11 @@ bindCheckBox("direction", showDirection);
 bindCheckBox("wind", showWind);
 bindCheckBox("temperature", showTemperature);
 bindCheckBox("pressure", showPressure);
+
+function lerp(p1, p2, alpha) {
+	return p1 + alpha * (p2 - p1);
+}
+
 
 function drawRect({x, y, width, height, color="white"}) {
 	context.fillStyle = color;
@@ -90,8 +99,17 @@ function drawScene() {
 	let y_min = Math.min(...dataset.LAT);
 	let y_max = Math.max(...dataset.LAT);
 
-	let x = dataset.LON[t];
-	let y = dataset.LAT[t];
+	let t_int = Math.floor(t);
+	let t_float = t - t_int;
+
+	let p1 = {x:dataset.LON[t_int], y:dataset.LAT[t_int]};
+	let p2 = {x:dataset.LON[(t_int+1) % size], y:dataset.LAT[(t_int+1) % size]};
+
+	// let x = dataset.LON[t];
+	// let y = dataset.LAT[t];
+
+	let x = lerp(p1.x, p2.x, t_float);
+	let y = lerp(p1.y, p2.y, t_float);
 
 	x_pixel = width * (x - x_min) / (x_max - x_min);
 	y_pixel = height * (y - y_min) / (y_max - y_min);
@@ -100,16 +118,19 @@ function drawScene() {
 		drawCircle({x:x_pixel, y:y_pixel, radius:10, color:"white"});
 	}
 
+	// console.log(t_int)
 
 	if(showDirection.state && showPosition.state) {
-		let dir = 180 * Math.atan2((dataset.LAT[t+1 % size] - y), (dataset.LON[t+1 % size] - x)) / Math.PI;
+		let dir = 180 * Math.atan2((dataset.LAT[(t_int+1) % size] - y), (dataset.LON[(t_int+1) % size] - x)) / Math.PI;
 		drawArrow({x:x_pixel, y:y_pixel, dir:dir, mag:30});
 	}
 
 	if(showWind.state) {
 
-		let windDir = (-dataset.WDIR[t]) + 90;
-		let windMag = dataset.WSPD[t] * 10;
+
+
+		let windDir = (-lerp(dataset.WDIR[t_int], dataset.WDIR[(t_int+1)%size], t_float)) + 90;
+		let windMag = lerp(dataset.WSPD[t_int], dataset.WSPD[(t_int+1)%size], t_float) * 10;
 
 		let d_width = width / 10;
 		let d_height = height / 10;
@@ -130,17 +151,20 @@ function main() {
 
 main();
 
+// 0 to 1
+let lerpSpeed = 0.1;
+
 setInterval(function() {
 
 
 	do {
-		t++;
+		t += lerpSpeed;
 		if(t > dataset.index.length) {t = 0;}
 	} while(dataset.WSPD[t] == 99);
 
 
-
+	document.getElementById("slider").value = t;
 
 
 	drawScene();
-}, 100);
+}, 100 * lerpSpeed);
