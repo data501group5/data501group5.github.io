@@ -1,0 +1,435 @@
+---
+title: "Data 501 Testing"
+author: "Ryan Panek"
+date: "2025-02-02"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r}
+setwd("C:/Users/Ryan/Desktop/Data 501 Project")
+```
+
+```{r}
+#reads dataset 1
+data = read.csv("sargasum.csv")
+```
+```{r}
+#boxplots all in one 
+par(mfrow = c(2,2))
+boxplot(data$Drift_Speed_mps, main = "Boxplot of Drift Speed", col = "purple")
+boxplot(data$Drift_Direction_deg, main = "Boxplot of Drift Direction", col = "pink")
+boxplot(data$Temperature_C, main = "Boxplot of Temperature", col = "red")
+boxplot(data$Salinity_PSU, main = "Boxplot of Salinity", col = "blue")
+boxplot(data$Wind_Speed_mps, main = "Boxplot of Wind Speed", col = "lightgreen")
+```
+```{r}
+boxplot(data$Drift_Speed_mps, main = "Boxplot of Drift Speed", col = "purple")
+```
+```{r}
+boxplot(data$Drift_Direction_deg, main = "Boxplot of Drift Direction", col = "pink")
+```
+```{r}
+boxplot(data$Temperature_C, main = "Boxplot of Temperature", col = "red")
+```
+```{r}
+boxplot(data$Salinity_PSU, main = "Boxplot of Salinity", col = "blue")
+```
+```{r}
+boxplot(data$Wind_Speed_mps, main = "Boxplot of Wind Speed", col = "lightgreen")
+```
+```{r}
+print(data[800,])
+```
+
+Time Series Test
+
+Shows constant mean and variance. As well seasonality effect is minimal (possibly due to this being in the same season of the year). The time series appears to be stationary, making it appear as white noise. However a longer period of time might prove to be useful as the time of this data is only about 3 days
+```{r}
+#time series plots
+par(mfrow = c(2,2))
+plot.ts(data$Drift_Speed_mps, main = "Sargassum Drift Speed Over Time")
+plot.ts(data$Temperature_C, main = "Temperature Over Time")
+plot.ts(data$Salinity_PSU, main = "Salinity Over Time")
+plot.ts(data$Wind_Speed_mps, main = "Wind Speed Over Time")
+plot.ts(data$Drift_Direction_deg, main = "Drift Direction Over Time")
+```
+```{r}
+plot.ts(data$Temperature_C, main = "Temperature Over Time")
+```
+```{r}
+plot.ts(data$Salinity_PSU, main = "Sargassum Drift Over Time")
+```
+```{r}
+plot.ts(data$Wind_Speed_mps, main = "Wind Speed Over Time")
+```
+
+Determining split in the data:
+```{r}
+864*0.2
+```
+Rounding up to get 173
+
+
+Correlation
+```{r}
+#removes unwanted rows for correlation analysis
+data2 = data[, c("Drift_Speed_mps", "Drift_Direction_deg", "Temperature_C", "Salinity_PSU", "Wind_Speed_mps")]
+```
+```{r}
+#plots correclations
+data2 = data[, c("Drift_Speed_mps", "Drift_Direction_deg", "Temperature_C", "Salinity_PSU", "Wind_Speed_mps")]
+pairs(Drift_Speed_mps~Temperature_C+Salinity_PSU+Wind_Speed_mps, data = data)
+pairs(Drift_Direction_deg~Temperature_C+Salinity_PSU+Wind_Speed_mps, data = data)
+cor(data2)
+```
+```{r}
+pairs(Drift_Direction_deg~Temperature_C+Salinity_PSU+Wind_Speed_mps, data = data)
+```
+```{r}
+cor(data2)
+```
+```{r}
+library("corrplot")
+corrplot(cor(data2))
+```
+```{r}
+corrplot(cor(data2))
+```
+To build our initial models the split will be about 80%, 20% which looks like $864*0.20 = 172.8$ which is rounded down to 172 and then subtracted from 864 to get the number of samples needed to be taken from the original data which is 692.
+
+```{r}
+#sets seed so samples are consistent
+set.seed(2025)
+```
+```{r}
+#splits data into test and train
+ntrain = 692
+training = data2[sample(nrow(data2), size = ntrain), ]
+test = data2[-sample(nrow(data2), size = ntrain), ]
+```
+```{r}
+training 
+```
+```{r}
+test
+```
+```{r}
+#builds model 1
+model1 = lm(Drift_Speed_mps~Temperature_C+Salinity_PSU+Wind_Speed_mps, data = training)
+summary(model1)
+```
+
+```{r}
+#residual plots
+par(mfrow=c(2,2))
+plot(model1)
+```
+```{r}
+BIC(model1)
+```
+```{r}
+backwardAIC = step(model1, direction = "backward")
+```
+```{r}
+pre = predict(model1, test)
+pre
+```
+```{r}
+pre = predict(model1, test)
+mse = (sum(test - pre)^2)/(172)
+mse
+rsme = sqrt((sum(test - pre)^2)/(172))
+rsme
+```
+```{r}
+library(MASS)
+```
+
+```{r}
+boxcox(model1)
+```
+
+
+```{r}
+model2 = lm(Drift_Speed_mps~Temperature_C, data = training)
+summary(model2)
+```
+```{r}
+boxcox(model2)
+```
+```{r}
+model3 = lm(Drift_Speed_mps~Salinity_PSU, data = training)
+summary(model3)
+```
+```{r}
+boxcox(model3)
+```
+```{r}
+model4 = lm(Drift_Speed_mps~Wind_Speed_mps, data = training)
+summary(model4)
+```
+```{r}
+boxcox(model4)
+```
+```{r}
+model5 = lm(Drift_Direction_deg~Temperature_C+Salinity_PSU+Wind_Speed_mps, data = training)
+summary(model5)
+```
+```{r}
+boxcox(model5)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(model5)
+```
+
+
+```{r}
+#reads data set 2
+data4 = read.table("buoy42501.txt", header = TRUE)
+```
+YY  MM DD hhmm     LAT      LON WDIR WSPD GST   PRES   ATMP  WTMP  DEWP  WVHT  DPD
+#yr  mo dy hrmn     deg      deg degT m/s  m/s    hPa   degC  degC  degC     m  sec
+
+Functions to convert latitude and longitude into distance and then speed 
+```{r}
+haversine = function(lat1,long1,lat2,long2){
+  #Earth Radius in m
+  R = 6371000
+  #converts lats and longs to radians
+  lat1 = ((lat1*pi)/180)
+  long1 = ((long1*pi/180))
+  lat2 = ((lat2*pi)/180)
+  long2 = ((long2*pi/180))
+  #difference between two lats and longs
+  dlat = lat2 - lat1
+  dlong = long2 - long1
+  
+  #Using haversine formula to compute distance
+  b = asin(sqrt(sin(dlat/2)^2+cos(lat1)*cos(lat2)*sin(dlong/2)^2))
+  distance = 2*R*b
+  return(distance)
+}
+```
+```{r}
+distance = function(data) {
+  n = nrow(data)
+  for(i in 2:n){
+    lat1 = data$LAT[i-1]
+    long1 = data$LON[i-1]
+    lat2 = data$LAT[i]
+    long2 = data$LON[i]
+    data$distance[i] = haversine(lat1,long1,lat2,long2)
+  }
+  data$distance[1] = 0
+  return(data)
+}
+```
+```{r}
+data3 = distance(data4)
+```
+```{r}
+data3$speed = data3$distance/3600
+```
+
+
+```{r}
+data3 = read.table("Buoy42501speed.txt", header = TRUE)
+data3
+```
+```{r}
+#removes duplicate rows
+data3 = data3[-c(2590:15534),]
+write.table(data3, file = "Buoy42501speed.txt", col.names = TRUE)
+```
+```{r}
+#removes duplicate rows and rows where values are 9999
+datas = data3[, c("LAT","LON","WDIR","WSPD","GST","PRES","ATMP","WTMP","DEWP","WVHT","DPD","speed")]
+datas = datas[-c(2590:15534),]
+datas = datas[datas$PRES != 9999 ,]
+```
+```{r}
+par(mfrow = c(2,2))
+boxplot(datas$WDIR, main = "Boxplot of Wind Direction", col = "purple")
+boxplot(datas$WSPD, main = "Boxplot of Wind Speed", col = "blue")
+boxplot(datas$GST, main = "Boxplot of Peak Gust Speed", col = "pink")
+boxplot(datas$PRES, main = "Boxplot of Sea Level Pressure", col = "red")
+boxplot(datas$ATMP, main = "Boxplot of Air Temperature", col = "green")
+boxplot(datas$WTMP, main = "Boxplot of Sea Surface Temperature", col = "orange")
+boxplot(datas$DEWP, main = "Boxplot of Dewpoint Temperature", col = "darkblue")
+boxplot(datas$WVHT, main = "Boxplot of Wave Height", col = "darkorange")
+boxplot(datas$DPD, main = "Boxplot of Dominant Wave Period", col = "skyblue")
+boxplot(datas$speed, main = "Boxplot of Drift Speed", col = "darkgreen")
+```
+```{r}
+par(mfrow = c(2,2))
+plot.ts(data$Drift_Speed_mps, main = "Sargassum Drift Speed Over Time")
+plot.ts(data$Temperature_C, main = "Temperature Over Time")
+plot.ts(data$Salinity_PSU, main = "Salinity Over Time")
+plot.ts(data$Wind_Speed_mps, main = "Wind Speed Over Time")
+plot.ts(data$Drift_Direction_deg, main = "Drift Direction Over Time")
+```
+```{r}
+par(mfrow = c(2,2))
+plot.ts(datas$speed, main = "Saildrone Drift Speed Over Time")
+plot.ts(datas$WDIR, main = "Wind Direction Over Time")
+plot.ts(datas$WSPD, main = "Wind Speed Over Time")
+plot.ts(datas$GST, main = "Peak Gust Speed Over Time")
+plot.ts(datas$PRES, main = "Sea Level Pressure Over Time")
+plot.ts(datas$ATMP, main = "Air Temperature Over Time")
+plot.ts(datas$WTMP, main = "Sea Surface Temperature Over Time")
+plot.ts(datas$DEWP, main = "Dewpoint Temperature Over Time")
+plot.ts(datas$WVHT, main = "Wave Height Over Time")
+plot.ts(datas$DPD, main = "Dominant Wave Period Over Time")
+plot.ts(datas$speed, main = "Drift Speed Over Time")
+```
+
+```{r}
+pairs(datas)
+```
+
+```{r}
+cor(datas)
+```
+```{r}
+library("corrplot")
+```
+```{r}
+corrplot(cor(datas))
+```
+
+
+("LAT","LON","WDIR","WSPD","GST","PRES","ATMP","WTMP","DEWP","WVHT","DPD","speed")
+
+
+**WDIR**: The wind direction. The direction of the wind in degrees clockwise from true North
+
+**WSPD**: The wind speed in m/s (meters/second) averaged over an eight-minute period then reported hourly
+
+**GST**: The peak gust speed of the wind in m/s during the averaged eight-minute period.
+
+**PRES**: The sea level pressure in hPa (Hectopascal Pressure Unit)
+
+**ATMP**: The air temperature in Celsius
+
+**WTMP**: The sea surface temperature in Celsius
+
+**DEWP**: The dew point temperature taken at the same height as the air temperature measurement.
+
+**WVHT**: The significant wave height in meters. Calculated as the average of the highest one-third of all of the wave heights during a 20-minute sampling period.
+
+**DPD**: Dominant wave period in seconds. The period with the maximum wave energy
+
+```{r}
+which(datas == max(datas$speed), arr.ind = T)
+```
+
+```{r}
+set.seed(2025)
+```
+```{r}
+ntn = 2025
+trng = datas[sample(nrow(datas), size = ntn), ]
+tst = datas[-sample(nrow(datas), size = ntn), ]
+```
+```{r}
+trng 
+```
+
+```{r}
+m1 = lm(speed~WDIR+WSPD+GST+PRES+ATMP+WTMP+DEWP+WVHT+DPD, data = trng)
+summary(m1)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(m1)
+```
+```{r}
+BIC(m1)
+```
+```{r}
+backwardAIC = step(m1, direction = "backward")
+```
+
+```{r}
+pred = predict(m1, tst)
+pred
+```
+```{r}
+mse2 = (sum(tst - pred)^2)/(507)
+mse2
+rsme2 = sqrt((sum(tst - pred)^2)/(507))
+rsme2
+```
+
+```{r}
+m2 = lm(speed~WDIR+WSPD+PRES+ATMP+WTMP+DEWP+WVHT, data = trng)
+summary(m2)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(m2)
+```
+```{r}
+pred2 = predict(m2, tst)
+mse3 = (sum(tst - pred2)^2)/(507)
+mse3
+rsme3 = sqrt((sum(tst - pred2)^2)/(507))
+rsme3
+```
+```{r}
+BIC(m2)
+```
+
+
+
+
+
+```{r}
+anova(m1,m2)
+```
+
+```{r}
+plot(datas$LAT,datas$LON)
+```
+
+```{r}
+strng = sqrt(trng)
+m4 = lm(speed~WDIR+WSPD+GST+PRES+ATMP+WTMP+DEWP+WVHT+DPD, data = strng)
+summary(m4)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(m4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
